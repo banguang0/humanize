@@ -1,0 +1,21 @@
+name: System web tests
+
+on:
+  push:
+    branches: [system-tests-ci]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - run: uv run playwright install --with-deps chromium webkit
+      - name: Touch and context menu tests
+        run: uv run pytest tests/system/web/test_web_pointer.py -k "long_press or workdir or keeps_the_browsers" -q
